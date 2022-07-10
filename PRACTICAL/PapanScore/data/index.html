@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>ESP8266 Scoreboard</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="bootstrap.min.css">
+    <script src="jquery-3.3.1.slim.min.js"></script>
+    <script src="bootstrap.min.js"></script>
+    <script src="axios.min.js"></script>
+</head>
+
+<style>
+    .input-lg {
+        font-size: 32px;
+    }
+</style>
+<script>
+    // let endpoint = "http://192.168.100.155"
+    let endpoint = ""
+    let game = {
+        "t1": {
+            "name": "",
+            "serve": true,
+            "point": 0
+        },
+        "t2": {
+            "name": "-",
+            "serve": false,
+            "point": 0
+        }
+    }
+
+    function getLatestScore() {
+        axios.get(endpoint + '/get')
+            .then(function (response) {
+                // handle success
+                console.log(response);
+                game.t1.name = response.data.t1.name;
+                game.t1.poin == response.data.t1.point;
+                game.t1.serve = response.data.t1.serve;
+                document.getElementById("t1Score").value = response.data.t1.point;
+                document.getElementById("t1name").value = response.data.t1.name;
+                console.log(response);
+                game.t2.name = response.data.t2.name;
+                game.t2.poin == response.data.t2.point;
+                game.t2.serve = response.data.t2.serve;;
+                document.getElementById("t2Score").value = response.data.t2.point;
+                document.getElementById("t2name").value = response.data.t2.name;
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+            })
+            .then(function () {
+                // always executed
+            });
+    }
+
+    function resetScore() {
+        var t1 = document.getElementById("t1name");
+        var t2 = document.getElementById("t2name");
+        game.t1.name = t1.selectedOptions[0].value;
+        game.t1.point = "0";
+        game.t1.serve = false;
+        game.t2.name = t2.selectedOptions[0].value;
+        game.t2.point = "0";
+        game.t2.serve = false;
+        console.log(game);
+        axios.post(endpoint + '/resetscore', game)
+            .then(function (response) {
+                // handle success
+                console.log(response);
+                game.t1.name = response.data.t1.name;
+                game.t1.poin == response.data.t1.point;
+                game.t1.serve = response.data.t1.serve;
+                document.getElementById("t1name").value = response.data.t1.name;
+                document.getElementById("t1Score").value = response.data.t1.point;
+                console.log(response);
+                game.t2.name = response.data.t2.name;
+                game.t2.poin == response.data.t2.point;
+                game.t2.serve = response.data.t2.serve;;
+                document.getElementById("t2name").value = response.data.t2.name;
+                document.getElementById("t2Score").value = response.data.t2.point;
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+            })
+            .then(function () {
+                // always executed
+            });
+    }
+
+
+    function add(player, isServe) {
+        if (player == 1) {
+            game.t1.point++;
+            if (isServe) {
+                game.t1.serve = isServe;
+                game.t2.serve = !isServe;
+            }
+            document.getElementById("t1Score").value = game.t1.point;
+        } else {
+            game.t2.point++;
+            if (isServe) {
+                game.t2.serve = isServe;
+                game.t1.serve = !isServe;
+            }
+            document.getElementById("t2Score").value = game.t2.point;
+        }
+        console.log(game);
+        axios.post(endpoint + '/updatescore', game)
+            .then(function (response) {
+                // handle success
+                console.log(response);
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+            })
+            .then(function () {
+                // always executed
+            });
+    }
+
+    function serve(player) {
+        if (player == 1) {
+            game.t1.serve = true;
+            game.t2.serve = false;
+        } else {
+
+            game.t2.serve = true;
+            game.t1.serve = false;
+
+
+        }
+        console.log(game);
+        axios.post(endpoint + '/updatescore', game)
+            .then(function (response) {
+                // handle success
+                console.log(response);
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+            })
+            .then(function () {
+                // always executed
+            });
+    }
+    function subs(player) {
+        if (player == 1) {
+            if (game.t1.point > 0) {
+                game.t1.point--;
+            }
+            document.getElementById("t1Score").value = game.t1.point;
+        } else {
+            if (game.t2.point > 0) {
+                game.t2.point--;
+            }
+            document.getElementById("t2Score").value = game.t2.point;
+        }
+        console.log(game);
+        axios.post(endpoint + '/updatescore', game)
+            .then(function (response) {
+                // handle success
+                console.log(response);
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+            })
+            .then(function () {
+                // always executed
+            });
+    }
+</script>
+
+
+<body onload="getLatestScore()">
+
+    <div class="jumbotron text-center">
+        <h1>PAPAN SCORE</h1>
+        <p>Papan Score dengan ESP8266</p>
+        <p>Untuk Sistem Rally Point</p>
+    </div>
+
+    <div class="container-sm">
+        <form>
+            <div class="col-12">
+
+                <div class="row">
+                    <div class="col-4">
+                        <select class="form-control form-select" id="t1name">
+                            <option value="A" selected>TEAM A</option>
+                            <option value="C">TEAM C</option>
+                        </select>
+                    </div>
+                    <div class="col-1"><button class="btn" type="button" onclick="subs(1)"> - </button></div>
+                    <div class="col-3"> <input type="text" class="form-control text-center input-lg" id="t1Score"
+                            value="0" disabled>
+                    </div>
+                    <div class="col-1"><button class="btn" type="button" onclick="add(1, false)"> + </button></div>
+                    <div class="col-3"><button class="btn" type="button" onclick="serve(1)">SERVE </button>
+                    </div>
+
+                </div>
+            </div>
+            <div class="col-12"></div>
+            <div class="col-12">
+                <div class="row">
+                    <div class="col-4">
+                        <select class="form-select form-control" id="t2name">
+                            <option value="B" selected>TEAM B</option>
+                            <option value="D">TEAM D</option>
+                        </select>
+                    </div>
+                    <div class="col-1"><button class="btn" type="button" onclick="subs(2)"> - </button></div>
+                    <div class="col-3"> <input type="text" class="form-control text-center input-lg" id="t2Score"
+                            value="0" disabled>
+                    </div>
+                    <div class="col-1"><button class="btn" type="button" onclick="add(2, false)"> + </button></div>
+                    <div class="col-3"><button class="btn" type="button" onclick="serve(2)">SERVE </button>
+                    </div>
+
+                </div>
+            </div>
+            <div class="col-12">&nbsp;</div>
+            <div class="col-12"><button class="btn col-6" type="button" onclick="resetScore()">Reset SCORE </button>
+            </div>
+        </form>
+    </div>
+
+</body>
+
+</html>
