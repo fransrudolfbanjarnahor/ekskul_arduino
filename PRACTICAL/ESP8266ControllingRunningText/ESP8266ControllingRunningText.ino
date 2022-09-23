@@ -23,6 +23,7 @@ const char form_html[] PROGMEM = R"rawliteral(
 <form action="/dapatkan_text" method="POST">
   <label for="text">Kirim Text:</label><br>
   <input type="text" id="text" name="text" value="Kirim Text">
+  <input type="text" id="kecepatanscroll" name="kecepatanscroll" value="25">
   <input type="submit" value="Submit">
 </form> 
 
@@ -43,7 +44,7 @@ const char form_html[] PROGMEM = R"rawliteral(
 //MD_Parola P = MD_Parola(HARDWARE_TYPE, CS_PIN, MAX_DEVICES);
 MD_Parola P = MD_Parola(HARDWARE_TYPE, DATA_PIN1, CLK_PIN1, CS_PIN1, MAX_DEVICES);
 
-uint8_t scrollSpeed = 25;  // default frame delay value
+uint8_t scrollSpeed = 50;  // default frame delay value
 textEffect_t scrollEffect = PA_SCROLL_LEFT;
 textPosition_t scrollAlign = PA_LEFT;
 uint16_t scrollPause = 2000;
@@ -109,8 +110,10 @@ void handleRoot() {
 
 void handlePost() {
   if (server.arg("text") != NULL) {
-    Serial.println(server.arg("text"));
+    Serial.println(server.arg("kecepatanscroll"));
     server.arg("text").toCharArray(newMessage, BUF_SIZE);
+    scrollSpeed = server.arg("kecepatanscroll").toInt();
+    P.displayText(newMessage, scrollAlign, scrollSpeed, scrollPause, scrollEffect, scrollEffect);
     newMessageAvailable = true;
 
     server.send(200, "text/html", "Text berhasil diterima " + server.arg("text"));
