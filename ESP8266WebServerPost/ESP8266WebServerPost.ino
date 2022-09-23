@@ -1,6 +1,7 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include <FS.h>
+#include <MD_MAX72xx.h>
 
 ESP8266WebServer server(80);    // Create a webserver object that listens for HTTP request on port 80
 
