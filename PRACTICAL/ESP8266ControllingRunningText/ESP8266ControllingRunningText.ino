@@ -10,8 +10,8 @@ void handleRoot();  // function prototypes for HTTP handlers
 void handleLogin();
 void handleNotFound();
 
-const char* ssid = "BUANA-SAWAH";      // The SSID (name) of the Wi-Fi network you want to connect to
-const char* password = "qwerty54321";  // The password of the Wi-Fi network
+const char* ssid = "ARDUINO_AP";      // The SSID (name) of the Wi-Fi network you want to connect to
+const char* password = "987654321";  // The password of the Wi-Fi network
 
 const char form_html[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>
