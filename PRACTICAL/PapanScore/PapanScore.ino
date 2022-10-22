@@ -47,7 +47,6 @@ void setup(void)
   Serial.println(WiFi.localIP());
   bool success = LittleFS.begin();
 
-  //  server.on("/", HTTP_GET, loadIndex);
   server.serveStatic("/bootstrap.min.css.map", LittleFS, "/bootstrap.min.css.map");
   server.serveStatic("/bootstrap.min.css", LittleFS, "/bootstrap.min.css");
   server.serveStatic("/jquery-3.3.1.slim.min.js", LittleFS, "/jquery-3.3.1.slim.min.js");

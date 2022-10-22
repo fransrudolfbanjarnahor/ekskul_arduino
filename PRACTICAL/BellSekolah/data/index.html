@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>ESP8266 BELL SEKOLAH</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="bootstrap.min.css">
+    <script src="jquery-3.3.1.slim.min.js"></script>
+    <script src="bootstrap.min.js"></script>
+    <script src="axios.min.js"></script>
+</head>
+
+<style>
+    .input-lg {
+        font-size: 32px;
+    }
+</style>
+<script defer>
+    //let endpoint = "http://192.168.100.151"
+    let endpoint = ""
+    let list_jadwal = []
+    let hari = ["SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"]
+    let filecount = 10;
+
+    function playMp3(i) {
+        axios.post(endpoint + '/play', { "index": i })
+            .then(function (response) {
+                // handle success
+                console.log(response);
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+            })
+            .then(function () {
+                // always executed
+            });
+    }
+
+    function manageJadwal(hari) {
+        console.log(hari)
+        document.getElementById("label_hari").innerText = hari;
+        $('#manage-jadwal').modal('show')
+    }
+
+    function updateJadwal(data) {
+        axios.post(endpoint + '/add', data)
+            .then(function (response) {
+                console.log(response);
+                $('#manage-jadwal').modal('hide')
+                getJadwal()
+            })
+            .catch(function (error) {
+                console.log(error);
+            })
+            .then(function () {
+            });
+    }
+
+    function resetJadwal() {
+        updateJadwal([])
+    }
+
+    function dummyJadwal() {
+        // let jadwal = { "hari": "SELASA", "jam": "07", "menit": "00", "audio": "1" }
+        list_jadwal.push({ "hari": "SELASA", "jam": "07", "menit": "00", "audio": "1" })
+        list_jadwal.push({ "hari": "RABU", "jam": "07", "menit": "00", "audio": "1" })
+        list_jadwal.push({ "hari": "KAMIS", "jam": "07", "menit": "00", "audio": "1" })
+        list_jadwal.push({ "hari": "KAMIS", "jam": "10", "menit": "00", "audio": "1" })
+        list_jadwal.push({ "hari": "KAMIS", "jam": "12", "menit": "00", "audio": "1" })
+        list_jadwal.push({ "hari": "JUMAT", "jam": "07", "menit": "00", "audio": "1" })
+        list_jadwal.push({ "hari": "JUMAT", "jam": "10", "menit": "00", "audio": "1" })
+        list_jadwal.push({ "hari": "JUMAT", "jam": "12", "menit": "00", "audio": "1" })
+        list_jadwal.push({ "hari": "SABTU", "jam": "07", "menit": "00", "audio": "1" })
+        list_jadwal.push({ "hari": "SABTU", "jam": "10", "menit": "00", "audio": "1" })
+        list_jadwal.push({ "hari": "SABTU", "jam": "12", "menit": "00", "audio": "1" })
+        console.log(list_jadwal)
+        updateJadwal(list_jadwal)
+    }
+    function getInfo() {
+        var x = document.getElementById("pilih_audio");
+
+        for (let i = 1; i <= filecount; i++) {
+            var option = document.createElement("option");
+            option.text = "Audio " + i;
+            option.value = i;
+            x.add(option);
+        }
+
+        axios.get(endpoint + '/info')
+            .then(function (response) {
+                console.log(response.data)
+                console.log(response.data.info.ip)
+                document.getElementById("ip").innerText = response.data.info.ip;
+                var x = document.getElementById("pilih_audio");
+                var option = document.createElement("option");
+                filecount = response.data.info.file_count
+                for (let i = 1; i <= filecount; i++) {
+                    let btn = document.createElement("button")
+                    btn.innerHTML = "Play " + i;
+                    btn.addEventListener("click", function () {
+                        playMp3(i)
+                        alert("Play " + i);
+                    });
+                    document.getElementById("play_test").append(btn)
+                    option.text = "Audio " + i;
+                    x.add(option);
+                }
+                // document.getElementById("t2name").value = response.data.t2.name;
+                getJadwal();
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+            })
+            .then(function () {
+
+            });
+    }
+    function getJadwal() {
+        axios.get(endpoint + '/jadwal')
+            .then(function (response) {
+                list_jadwal = response.data
+                console.log(response.data)
+                hari.forEach((h) => {
+                    document.getElementById(h).innerHTML = ""
+                    console.log(h)
+                    const result = list_jadwal.filter(j => j.hari === h);
+                    console.log(result)
+                    let ul = document.createElement("ul")
+
+                    result.forEach((r) => {
+                        let li = document.createElement("li")
+                        li.innerHTML = `${r.jam}:${r.menit} - ${r.label}`
+                        ul.append(li)
+                    })
+                    document.getElementById(h).append(ul)
+                })
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+            })
+            .then(function () {
+                // always executed
+            });
+    }
+
+
+    function addJadwal() {
+        let hari = document.getElementById("label_hari").innerText
+        let label = document.getElementById("label").value
+        var j = document.getElementById("jam");
+        let jam = j.options[j.selectedIndex].value
+        var m = document.getElementById("menit");
+        let menit = m.options[m.selectedIndex].value
+        var e = document.getElementById("pilih_audio");
+        jadwal = { "label": label, "hari": hari, "jam": jam, "menit": menit, "audio": e.options[e.selectedIndex].value }
+        console.log(jadwal)
+        list_jadwal.push(jadwal)
+        updateJadwal(list_jadwal)
+    }
+
+</script>
+
+
+<body onload="getInfo()">
+    <div class="jumbotron text-center">
+        <h1>Bell Sekolah</h1>
+        <div id="ip">IP</div>
+        <div id="playerStatus"></div>
+        <div id="play_test"></div>
+    </div>
+    <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+        <button type="button" class="btn btn-secondary" onclick="resetJadwal()">HAPUS SEMUA JADWAL</button>
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">SENIN <button onclick="manageJadwal('SENIN')">+</button></th>
+                <th scope="col">SELASA <button onclick="manageJadwal('SELASA')">+</button></th>
+                <th scope="col">RABU <button onclick="manageJadwal('RABU')">+</button></th>
+                <th scope="col">KAMIS<button onclick="manageJadwal('KAMIS')">+</button></th>
+                <th scope="col">JUMAT<button onclick="manageJadwal('JUMAT')">+</button></th>
+                <th scope="col">SABTU<button onclick="manageJadwal('SABTU')">+</button></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td id="SENIN"></td>
+                <td id="SELASA"></td>
+                <td id="RABU"></td>
+                <td id="KAMIS"></td>
+                <td id="JUMAT"></td>
+                <td id="SABTU"></td>
+            </tr>
+
+        </tbody>
+    </table>
+
+    <div class="modal" tabindex="-1" role="dialog" id="manage-jadwal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Manajemen Jadwal</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="label">Label Jadwal</label>
+                            <input type="text" class="form-control" id="label" placeholder="Label Jadwal">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="label_hari">Hari</label>
+                            <div id="label_hari"></div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="col">
+                                <label for="jam">JAM</label>
+                                <select class="form-control" id="jam">
+                                    <option>06</option>
+                                    <option>07</option>
+                                    <option>08</option>
+                                    <option>09</option>
+                                    <option>10</option>
+                                    <option>11</option>
+                                    <option>12</option>
+                                    <option>13</option>
+                                    <option>14</option>
+                                    <option>15</option>
+                                    <option>16</option>
+                                    <option>18</option>
+                                    <option>19</option>
+                                    <option>20</option>
+                                    <option>21</option>
+                                    <option>22</option>
+                                    <option>23</option>
+
+
+                                </select>
+                            </div>
+                            <div class="col">
+                                <label for="jam">MENIT</label>
+                                <select class="form-control" id="menit">
+                                    <option>00</option>
+                                    <option>05</option>
+                                    <option>10</option>
+                                    <option>15</option>
+                                    <option>20</option>
+                                    <option>25</option>
+                                    <option>30</option>
+                                    <option>35</option>
+                                    <option>40</option>
+                                    <option>45</option>
+                                    <option>50</option>
+                                    <option>55</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="audio">Audio</label>
+                            <select class="form-control" id="pilih_audio">
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="addJadwal()">SIMPAN</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">TUTUP</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
