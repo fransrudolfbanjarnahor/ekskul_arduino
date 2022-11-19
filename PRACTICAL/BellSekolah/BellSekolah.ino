@@ -16,7 +16,7 @@
 // RX, TX
 SoftwareSerial mySerial(D7, D8);  // RX, TX
 
-const char* ssid = "ARDUINO-AP";      // The SSID (name) of the Wi-Fi network you want to connect to
+const char* ssid = "ARDUINO_AP";      // The SSID (name) of the Wi-Fi network you want to connect to
 const char* password = "987654321";  // The password of the Wi-Fi network
 
 DFRobotDFPlayerMini myDFPlayer;
@@ -92,7 +92,7 @@ void setup() {
   Serial.println(myDFPlayer.readFolderCounts());
   Serial.println(myDFPlayer.readFileCounts());  //read all file counts in SD card
   Serial.println(WiFi.localIP());
-  myDFPlayer.volume(10);
+  myDFPlayer.volume(30);
   //readJadwal();
   delay(1000);  //Set volume value. From 0 to 30
   // myDFPlayer.play(1);     //Play the first mp3

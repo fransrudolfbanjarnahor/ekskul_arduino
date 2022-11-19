@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>ESP8266 BELL SEKOLAH SMP ST THOMAS 2 BINJAI</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="axios.min.js"></script>
+    <style>
+        .input-lg {
+            font-size: 32px;
+        }
+
+        .center {
+            margin: auto;
+            width: 50%;
+            border: 3px solid green;
+            padding: 10px;
+        }
+    </style>
+    <script defer>
+        //let endpoint = "http://192.168.100.152"
+        let endpoint = ""
+
+
+        function onoff(kode) {
+            console.log(kode);
+            axios.post(endpoint + '/control', kode)
+                .then(function (response) {
+                    console.log(response);
+                })
+                .catch(function (error) {
+                    console.log(error);
+                })
+                .then(function () {
+                });
+        }
+
+    </script>
+</head>
+
+<body>
+
+    <div class="center">
+        <button onclick="onoff('depan_h')">LAMPU DEPAN HIJAU</button>
+        <button onclick="onoff('depan_k')">LAMPU DEPAN KUNING</button>
+        <button onclick="onoff('depan_m')">LAMPU DEPAN MERAH</button>
+        <button onclick="onoff('k1')">LAMPU KAMAR</button>
+        <button onclick="onoff('utama')">LAMPU RUANG UTAMA</button>
+    </div>
+
+</body>
+
+</html>
